@@ -1,10 +1,13 @@
 package ru.yandex.practicum.filmorate;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import ru.yandex.practicum.filmorate.controller.UserController;
+import ru.yandex.practicum.filmorate.exceptions.UserNotFoundException;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 
@@ -12,18 +15,24 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import java.time.LocalDate;
 import java.util.Collection;
+import java.util.HashSet;
 
 @SpringBootTest
 public class UserControllerTest {
-
-    UserController userController = new UserController();
+    @Autowired
+    UserController userController;
     User testUser;
     User testUserTwo;
 
     @BeforeEach
     void setUp() {
-        testUser = new User(1, "address@somemail.ru", "Some_login", "Some_name", LocalDate.of(2000, 1, 1));
-        testUserTwo = new User(2, "anotheraddress@somemail.ru", "Some_login2", "Some_name", LocalDate.of(1990, 1, 1));
+        testUser = new User(1, "address@somemail.ru", "Some_login", "Some_name", LocalDate.of(2000, 1, 1), new HashSet<>());
+        testUserTwo = new User(2, "anotheraddress@somemail.ru", "Some_login2", "Some_name", LocalDate.of(1990, 1, 1), new HashSet<>());
+    }
+
+    @AfterEach
+    void clear() {
+        userController.findAll().clear();
     }
 
     @Test
@@ -52,7 +61,7 @@ public class UserControllerTest {
                 new Executable() {
                     @Override
                     public void execute() throws Throwable {
-                        userController.create(new User(1, "address@somemail.ru", " ", "Some_name", LocalDate.of(2000, 1, 1)));
+                        userController.create(new User(1, "address@somemail.ru", " ", "Some_name", LocalDate.of(2000, 1, 1), new HashSet<>()));
                     }
                 });
         assertEquals("Логин не может быть пустым и содержать пробелы", exception.getMessage());
@@ -65,7 +74,7 @@ public class UserControllerTest {
                 new Executable() {
                     @Override
                     public void execute() throws Throwable {
-                        userController.create(new User(1, "addresssomemail.ru", "Some_login", "Some_name", LocalDate.of(2000, 1, 1)));
+                        userController.create(new User(1, "addresssomemail.ru", "Some_login", "Some_name", LocalDate.of(2000, 1, 1), new HashSet<>()));
                     }
                 });
         assertEquals("Электронная почта не может быть пустой и должна содержать символ @", exception.getMessage());
@@ -78,7 +87,7 @@ public class UserControllerTest {
                 new Executable() {
                     @Override
                     public void execute() throws Throwable {
-                        userController.create(new User(1, "address@somemail.ru", "Some_login", "Some_name", LocalDate.of(3000, 1, 1)));
+                        userController.create(new User(1, "address@somemail.ru", "Some_login", "Some_name", LocalDate.of(3000, 1, 1), new HashSet<>()));
                     }
                 });
         assertEquals("Дата рождения не может быть в будущем!", exception.getMessage());
@@ -86,19 +95,19 @@ public class UserControllerTest {
 
     @Test
     void shouldCreateUserWithWrongName() {
-        User noName = new User(1, "address@somemail.ru", "Some_login", " ", LocalDate.of(2000, 1, 1));
+        User noName = new User(1, "address@somemail.ru", "Some_login", " ", LocalDate.of(2000, 1, 1), new HashSet<>());
         userController.create(noName);
         assertEquals(noName.getLogin(), noName.getName());
     }
 
     @Test
     void shouldUpdateUserWithWrongId() {
-        final ValidationException exception = assertThrows(
-                ValidationException.class,
+        final UserNotFoundException exception = assertThrows(
+                UserNotFoundException.class,
                 new Executable() {
                     @Override
                     public void execute() throws Throwable {
-                        userController.update(new User(10, "address@somemail.ru", "Some_login", "Some_name", LocalDate.of(2000, 1, 1)));
+                        userController.update(new User(10000, "address@somemail.ru", "Some_login", "Some_name", LocalDate.of(2000, 1, 1), new HashSet<>()));
                     }
                 });
         assertEquals("Нельзя выполнить обновление: пользователь не найден в базе данных", exception.getMessage());

@@ -1,10 +1,13 @@
 package ru.yandex.practicum.filmorate;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import ru.yandex.practicum.filmorate.controller.FilmController;
+import ru.yandex.practicum.filmorate.exceptions.FilmNotFoundException;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 
@@ -12,18 +15,25 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import java.time.LocalDate;
 import java.util.Collection;
+import java.util.HashSet;
 
 @SpringBootTest
 public class FilmControllerTest {
 
-    FilmController filmController = new FilmController();
+    @Autowired
+    FilmController filmController;
     Film testFilm;
     Film testFilmTwo;
 
     @BeforeEach
     void setUp() {
-        testFilm = new Film(1, "Some name", "Some description", LocalDate.of(2000, 1, 1), 100);
-        testFilmTwo = new Film(2, "Some name2", "Some description2", LocalDate.of(1990, 1, 1), 99);
+        testFilm = new Film(1, "Some name", "Some description", LocalDate.of(2000, 1, 1), 100, new HashSet<>());
+        testFilmTwo = new Film(2, "Some name2", "Some description2", LocalDate.of(1990, 1, 1), 99, new HashSet<>());
+    }
+
+    @AfterEach
+    void clear() {
+        filmController.findAll().clear();
     }
 
     @Test
@@ -52,7 +62,7 @@ public class FilmControllerTest {
                 new Executable() {
                     @Override
                     public void execute() throws Throwable {
-                        filmController.create(new Film(1, " ", "Some description", LocalDate.of(2000, 1, 1), 100));
+                        filmController.create(new Film(1, " ", "Some description", LocalDate.of(2000, 1, 1), 100, new HashSet<>()));
                     }
                 });
         assertEquals("Название не может быть пустым", exception.getMessage());
@@ -122,7 +132,7 @@ public class FilmControllerTest {
                                 "что, чем хуже было бы положение полка, тем приятнее было бы это главнокомандующему." +
                                 " Хотя адъютант и не знал этих подробностей, однако он передал полковому командиру" +
                                 " непременное требование главнокомандующего, чтобы люди были в шинелях и чехлах, и " +
-                                "что в противном случае главнокомандующий будет недоволен.", LocalDate.of(2000, 1, 1), 100));
+                                "что в противном случае главнокомандующий будет недоволен.", LocalDate.of(2000, 1, 1), 100, new HashSet<>()));
                     }
                 });
         assertEquals("Максимальная длина описания — 200 символов", exception.getMessage());
@@ -135,7 +145,7 @@ public class FilmControllerTest {
                 new Executable() {
                     @Override
                     public void execute() throws Throwable {
-                        filmController.create(new Film(1, "Some name", "Some description", LocalDate.of(1000, 1, 1), 100));
+                        filmController.create(new Film(1, "Some name", "Some description", LocalDate.of(1000, 1, 1), 100, new HashSet<>()));
                     }
                 });
         assertEquals("Дата релиза — не раньше 28 декабря 1895 г.", exception.getMessage());
@@ -148,7 +158,7 @@ public class FilmControllerTest {
                 new Executable() {
                     @Override
                     public void execute() throws Throwable {
-                        filmController.create(new Film(1, "Some name", "Some description", LocalDate.of(2000, 1, 1), -100));
+                        filmController.create(new Film(1, "Some name", "Some description", LocalDate.of(2000, 1, 1), -100, new HashSet<>()));
                     }
                 });
         assertEquals("Продолжительность фильма должна быть больше 0", exception.getMessage());
@@ -156,12 +166,12 @@ public class FilmControllerTest {
 
     @Test
     void shouldUpdateFilmWithWrongId() {
-        final ValidationException exception = assertThrows(
-                ValidationException.class,
+        final FilmNotFoundException exception = assertThrows(
+                FilmNotFoundException.class,
                 new Executable() {
                     @Override
                     public void execute() throws Throwable {
-                        filmController.update(new Film(10, "Some name", "Some description", LocalDate.of(2000, 1, 1), 100));
+                        filmController.update(new Film(10, "Some name", "Some description", LocalDate.of(2000, 1, 1), 100, new HashSet<>()));
                     }
                 });
         assertEquals("Нельзя выполнить обновление: фильм не найден в базе данных", exception.getMessage());
