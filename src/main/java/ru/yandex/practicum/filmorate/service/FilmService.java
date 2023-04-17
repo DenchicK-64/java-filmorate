@@ -13,15 +13,14 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @Service
-
 public class FilmService {
     private final FilmStorage filmStorage;
-    private final UserService userService;
+    private final UserService userStorage;
 
     @Autowired
-    public FilmService(FilmStorage filmStorage, @Autowired(required = false) UserService userService) {
+    public FilmService(FilmStorage filmStorage, @Autowired(required = false) UserService userStorage) {
         this.filmStorage = filmStorage;
-        this.userService = userService;
+        this.userStorage = userStorage;
     }
 
     public Film create(Film film) throws ValidationException {
@@ -43,20 +42,19 @@ public class FilmService {
 
     public void addLike(Integer filmId, Integer userId) {
         Film film = filmStorage.getFilm(filmId);
-        User user = userService.getUser(userId);
+        User user = userStorage.getUser(userId);
         film.getLikes().add(user.getId());
     }
 
     public void deleteLike(Integer filmId, Integer userId) {
         Film film = filmStorage.getFilm(filmId);
-        User user = userService.getUser(userId);
+        User user = userStorage.getUser(userId);
         film.getLikes().remove(user.getId());
     }
 
     public List<Film> getPopularFilms(Integer count) {
         List<Film> popularFilms = findAll()
                 .stream()
-                .filter(film -> film.getLikes() != null)
                 .sorted((t1, t2) -> t2.getLikes().size() - t1.getLikes().size())
                 .limit(count)
                 .collect(Collectors.toList());

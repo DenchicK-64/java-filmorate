@@ -34,14 +34,16 @@ public class UserService {
 
     public void addFriend(Integer userId, Integer friendId) {
         User user = userStorage.getUser(userId);
+        User friend = userStorage.getUser(friendId);
         user.getFriends().add(friendId);
-        userStorage.getUser(friendId).getFriends().add(userId);
+        friend.getFriends().add(userId);
     }
 
     public void deleteFriend(Integer userId, Integer friendId) {
         User user = userStorage.getUser(userId);
+        User friend = userStorage.getUser(friendId);
         user.getFriends().remove(friendId);
-        userStorage.getUser(friendId).getFriends().remove(userId);
+        friend.getFriends().remove(userId);
     }
 
     public User getUser(int id) {
@@ -58,9 +60,10 @@ public class UserService {
     public List<User> getCommonFriends(Integer userId, Integer friendId) {
         Set<Integer> commonFriendsId = new HashSet<>(userStorage.getUser(userId).getFriends());
         commonFriendsId.retainAll(userStorage.getUser(friendId).getFriends());
-
-        return userStorage.findAll().stream()
-                .filter(p -> commonFriendsId.contains(p.getId()))
-                .collect(Collectors.toList());
+        List<User> commonFriends = new ArrayList<>();
+        for (Integer id : commonFriendsId) {
+            commonFriends.add(userStorage.getUser(id));
+        }
+        return commonFriends;
     }
 }

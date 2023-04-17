@@ -14,7 +14,6 @@ import java.util.List;
 @RequestMapping("/films")
 @RestController
 @RequiredArgsConstructor
-
 public class FilmController {
     private final FilmService filmService;
 
@@ -55,7 +54,7 @@ public class FilmController {
 
     @GetMapping("/popular")
     public List<Film> getFilmsPopular(
-            @RequestParam(value = "count", defaultValue = "10", required = false) Integer count) {
+            @RequestParam(defaultValue = "10") Integer count) {
         log.info("Запрос списка популярных фильмов");
         return filmService.getPopularFilms(count);
     }
