@@ -1,7 +1,7 @@
 # java-filmorate
 Template repository for Filmorate project.
 
-**Диаграмма база данных**
+**Диаграмма базы данных**
 
 <img alt="”drawSQL-filmorate-export-2023-04-20”" src="src\main\resources\drawSQL-filmorate-export-2023-04-20.png" width ="””" height="””">
 
