@@ -20,13 +20,10 @@ import java.util.*;
 @Component("userDbStorage")
 public class UserDbStorage implements UserStorage {
     private final ValidateUser validateUser = new ValidateUser();
-
+    private final JdbcTemplate jdbcTemplate;
     public UserDbStorage(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
     }
-
-    private final JdbcTemplate jdbcTemplate;
-
 
     @Override
     public User create(User user) {
