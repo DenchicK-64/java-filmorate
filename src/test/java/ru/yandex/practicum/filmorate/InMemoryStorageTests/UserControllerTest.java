@@ -1,11 +1,14 @@
 package ru.yandex.practicum.filmorate.InMemoryStorageTests;
 
+import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.annotation.DirtiesContext;
 import ru.yandex.practicum.filmorate.controller.UserController;
 import ru.yandex.practicum.filmorate.exceptions.UserNotFoundException;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
@@ -18,6 +21,9 @@ import java.util.Collection;
 import java.util.HashSet;
 
 @SpringBootTest
+@AutoConfigureTestDatabase
+@RequiredArgsConstructor(onConstructor_ = @Autowired)
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 public class UserControllerTest {
     @Autowired
     UserController userController;
@@ -26,9 +32,9 @@ public class UserControllerTest {
 
     @BeforeEach
     void setUp() {
-        testUser = new User(1, "address@somemail.ru", "Some_login", "Some_name",
+        testUser = new User("address@somemail.ru", "Some_login", "Some_name",
                 LocalDate.of(2000, 1, 1), new HashSet<>());
-        testUserTwo = new User(2, "anotheraddress@somemail.ru", "Some_login2", "Some_name",
+        testUserTwo = new User("anotheraddress@somemail.ru", "Some_login2", "Some_name",
                 LocalDate.of(1990, 1, 1), new HashSet<>());
     }
 
