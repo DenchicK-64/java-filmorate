@@ -1,58 +1,146 @@
 package ru.yandex.practicum.filmorate;
 
-import org.junit.jupiter.api.AfterEach;
+import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
-import ru.yandex.practicum.filmorate.controller.FilmController;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.test.annotation.DirtiesContext;
 import ru.yandex.practicum.filmorate.exceptions.FilmNotFoundException;
+import ru.yandex.practicum.filmorate.exceptions.UserNotFoundException;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.Genre;
+import ru.yandex.practicum.filmorate.model.Mpa;
+import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.storage.film.FilmDbStorage;
+import ru.yandex.practicum.filmorate.storage.user.UserDbStorage;
+
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import java.time.LocalDate;
-import java.util.Collection;
-import java.util.HashSet;
-
 @SpringBootTest
-public class FilmControllerTest {
+@AutoConfigureTestDatabase
+@RequiredArgsConstructor(onConstructor_ = @Autowired)
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
+public class FilmDbStorageTest {
+    private final FilmDbStorage filmDbStorage;
+    private final UserDbStorage userDbStorage;
+    private final JdbcTemplate jdbcTemplate;
 
-    @Autowired
-    FilmController filmController;
+    User testUser;
+    User testUserTwo;
     Film testFilm;
     Film testFilmTwo;
 
     @BeforeEach
-    void setUp() {
-        testFilm = new Film(1, "Some name", "Some description", LocalDate.of(2000, 1, 1), 100, new HashSet<>());
-        testFilmTwo = new Film(2, "Some name2", "Some description2", LocalDate.of(1990, 1, 1), 99, new HashSet<>());
-    }
+    public void setUp() {
 
-    @AfterEach
-    void clear() {
-        filmController.findAll().clear();
+        testUser = new User(1, "address@somemail.ru", "Some_login", "Some_name",
+                LocalDate.of(2000, 1, 1), new HashSet<>());
+        testUserTwo = new User(2, "anotheraddress@somemail.ru", "Some_login2", "Some_name",
+                LocalDate.of(1990, 1, 1), new HashSet<>());
+        testFilm = new Film(1, "Some name", "Some description",
+                LocalDate.of(2000, 1, 1), 100, new Mpa(1, "G"),
+                new ArrayList<>(), new HashSet<>());
+        testFilmTwo = new Film(2, "Some name2", "Some description2",
+                LocalDate.of(1990, 1, 1), 90, new Mpa(3, "PG-13"),
+                new ArrayList<>(), new HashSet<>());
     }
 
     @Test
-    void createFilm() {
-        filmController.create(testFilm);
-        final Film testFilmCopy = testFilm;
-        assertNotNull(testFilm);
+    public void createTest() {
+        filmDbStorage.create(testFilm);
+        final Film testFilmCopy = filmDbStorage.getFilm(testFilm.getId());
+        assertNotNull(testFilmCopy);
         assertEquals(testFilmCopy, testFilm);
-        assertEquals(1, filmController.findAll().size());
+        Collection<Film> testCollection = filmDbStorage.findAll();
+        assertEquals(1, testCollection.size());
+        assertTrue(testCollection.contains(testFilm));
     }
 
     @Test
-    void getAllFilms() {
-        filmController.create(testFilm);
-        filmController.create(testFilmTwo);
-        final Collection<Film> testCollection = filmController.findAll();
+    public void updateTest() {
+        filmDbStorage.create(testFilm);
+        testFilm.setName("Update Test");
+        testFilm.setDuration(180);
+        testFilm.setDescription("for update test");
+        filmDbStorage.update(testFilm);
+        final Film testFilmCopy = filmDbStorage.getFilm(testFilm.getId());
+        assertNotNull(testFilmCopy);
+        assertEquals(testFilmCopy, testFilm);
+    }
+
+    @Test
+    public void findAllTest() {
+        filmDbStorage.create(testFilm);
+        filmDbStorage.create(testFilmTwo);
+        final Collection<Film> testCollection = filmDbStorage.findAll();
         assertNotNull(testCollection);
         assertEquals(2, testCollection.size());
-        assertEquals(testCollection, filmController.findAll());
+        assertEquals(testCollection, filmDbStorage.findAll());
+    }
+
+    @Test
+    public void getFilmTest() {
+        filmDbStorage.create(testFilm);
+        final Film testFilmCopy = filmDbStorage.getFilm(testFilm.getId());
+        assertNotNull(testFilmCopy);
+        assertEquals(testFilmCopy, testFilm);
+    }
+
+    @Test
+    public void getFilmTestG() {
+        filmDbStorage.create(testFilm);
+        testFilm.setGenres(List.of(new Genre(1, "Комедия")));
+        assertEquals(testFilm.getGenres(), List.of(new Genre(1, "Комедия")));
+    }
+
+    @Test
+    public void addLikeTest() {
+        filmDbStorage.create(testFilm);
+        userDbStorage.create(testUser);
+        filmDbStorage.addLike(testFilm.getId(), testUser.getId());
+        Boolean checkLike = jdbcTemplate.queryForObject("select exists " +
+                        "(select * from likes where film_id = ? and user_id = ?)",
+                Boolean.class, testFilm.getId(), testUser.getId());
+        assertEquals(Boolean.TRUE, checkLike);
+    }
+
+    @Test
+    public void deleteLikeTest() {
+        filmDbStorage.create(testFilm);
+        userDbStorage.create(testUser);
+        filmDbStorage.addLike(testFilm.getId(), testUser.getId());
+        filmDbStorage.deleteLike(testFilm.getId(), testUser.getId());
+        Boolean checkLike = jdbcTemplate.queryForObject("select exists " +
+                        "(select * from likes where film_id = ? and user_id = ?)",
+                Boolean.class, testFilm.getId(), testUser.getId());
+
+        assertEquals(Boolean.FALSE, checkLike);
+    }
+
+    @Test
+    public void getPopularFilmsTest() {
+        filmDbStorage.create(testFilm);
+        filmDbStorage.create(testFilmTwo);
+        userDbStorage.create(testUser);
+        userDbStorage.create(testUserTwo);
+        filmDbStorage.addLike(testFilm.getId(), testUser.getId());
+        filmDbStorage.addLike(testFilm.getId(), testUserTwo.getId());
+        filmDbStorage.addLike(testFilmTwo.getId(), testUser.getId());
+        filmDbStorage.update(testFilm);
+        filmDbStorage.update(testFilmTwo);
+        assertEquals(filmDbStorage.getPopularFilms(10).size(), 2);
+        assertEquals(filmDbStorage.getPopularFilms(10).get(0).getLikes().size(), 2);
     }
 
     @Test
@@ -62,7 +150,9 @@ public class FilmControllerTest {
                 new Executable() {
                     @Override
                     public void execute() throws Throwable {
-                        filmController.create(new Film(1, " ", "Some description", LocalDate.of(2000, 1, 1), 100, new HashSet<>()));
+                        filmDbStorage.create(new Film(1, " ", "Some description",
+                                LocalDate.of(2000, 1, 1), 100, new Mpa(1, "G"),
+                                new ArrayList<>(), new HashSet<>()));
                     }
                 });
         assertEquals("Название не может быть пустым", exception.getMessage());
@@ -75,7 +165,7 @@ public class FilmControllerTest {
                 new Executable() {
                     @Override
                     public void execute() throws Throwable {
-                        filmController.create(new Film(1, "Some name", "В октябре 1805 года русские войска занимали " +
+                        filmDbStorage.create(new Film(1, "Some name", "В октябре 1805 года русские войска занимали " +
                                 "села и города эрцгерцогства Австрийского, и еще новые полки приходили из России, и, " +
                                 "отягощая постоем жителей, располагались у крепости Браунау. В Браунау была главная " +
                                 "квартира главнокомандующего Кутузова.\n" +
@@ -132,7 +222,9 @@ public class FilmControllerTest {
                                 "что, чем хуже было бы положение полка, тем приятнее было бы это главнокомандующему." +
                                 " Хотя адъютант и не знал этих подробностей, однако он передал полковому командиру" +
                                 " непременное требование главнокомандующего, чтобы люди были в шинелях и чехлах, и " +
-                                "что в противном случае главнокомандующий будет недоволен.", LocalDate.of(2000, 1, 1), 100, new HashSet<>()));
+                                "что в противном случае главнокомандующий будет недоволен.",
+                                LocalDate.of(2000, 1, 1), 100, new Mpa(1, "G"),
+                                new ArrayList<>(), new HashSet<>()));
                     }
                 });
         assertEquals("Максимальная длина описания — 200 символов", exception.getMessage());
@@ -145,7 +237,9 @@ public class FilmControllerTest {
                 new Executable() {
                     @Override
                     public void execute() throws Throwable {
-                        filmController.create(new Film(1, "Some name", "Some description", LocalDate.of(1000, 1, 1), 100, new HashSet<>()));
+                        filmDbStorage.create(new Film(1, "Some name", "Some description",
+                                LocalDate.of(1000, 1, 1), 100, new Mpa(1, "G"),
+                                new ArrayList<>(), new HashSet<>()));
                     }
                 });
         assertEquals("Дата релиза — не раньше 28 декабря 1895 г.", exception.getMessage());
@@ -158,7 +252,9 @@ public class FilmControllerTest {
                 new Executable() {
                     @Override
                     public void execute() throws Throwable {
-                        filmController.create(new Film(1, "Some name", "Some description", LocalDate.of(2000, 1, 1), -100, new HashSet<>()));
+                        filmDbStorage.create(new Film(1, "Some name", "Some description",
+                                LocalDate.of(2000, 1, 1), -100, new Mpa(1, "G"),
+                                new ArrayList<>(), new HashSet<>()));
                     }
                 });
         assertEquals("Продолжительность фильма должна быть больше 0", exception.getMessage());
@@ -171,9 +267,24 @@ public class FilmControllerTest {
                 new Executable() {
                     @Override
                     public void execute() throws Throwable {
-                        filmController.update(new Film(10, "Some name", "Some description", LocalDate.of(2000, 1, 1), 100, new HashSet<>()));
+                        filmDbStorage.update(new Film(10, "Some name", "Some description",
+                                LocalDate.of(2000, 1, 1), 100, new Mpa(1, "G"),
+                                new ArrayList<>(), new HashSet<>()));
                     }
                 });
-        assertEquals("Нельзя выполнить обновление: фильм не найден в базе данных", exception.getMessage());
+        assertEquals("Фильм не найден в базе данных", exception.getMessage());
+    }
+
+    @Test
+    void shouldDeleteLikeFromUserWithWrongId() {
+        final UserNotFoundException exception = assertThrows(
+                UserNotFoundException.class,
+                new Executable() {
+                    @Override
+                    public void execute() throws Throwable {
+                        filmDbStorage.deleteLike(testFilm.getId(), -1);
+                    }
+                });
+        assertEquals("Пользователь не найден в базе данных", exception.getMessage());
     }
 }
