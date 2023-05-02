@@ -7,7 +7,6 @@ import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exceptions.FilmNotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Mpa;
 import ru.yandex.practicum.filmorate.storage.genre.GenreStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserDbStorage;
@@ -16,13 +15,11 @@ import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.time.LocalDate;
 import java.util.*;
 
 @Component
 @Slf4j
 public class FilmDbStorage implements FilmStorage {
-    private final ValidateFilm validateFilm = new ValidateFilm();
     private final JdbcTemplate jdbcTemplate;
     private final GenreStorage genreStorage;
     private final UserDbStorage userDbStorage;
@@ -35,7 +32,7 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public Film create(Film film) {
-        validateFilm.validate(film);
+        ValidateFilm.validateFilm(film);
         KeyHolder keyHolder = new GeneratedKeyHolder();
         jdbcTemplate.update(con -> {
             PreparedStatement preparedStatement = con.prepareStatement(FilmSqlRequestList.CREATE_FILM, new String[]{"film_id"});
@@ -57,7 +54,7 @@ public class FilmDbStorage implements FilmStorage {
     @Override
     public Film update(Film film) {
         filmCheckInDb(film.getId());
-        validateFilm.validate(film);
+        ValidateFilm.validateFilm(film);
         jdbcTemplate.update(FilmSqlRequestList.UPDATE_FILM, film.getName(), film.getDescription(), film.getReleaseDate(),
                 film.getDuration(), film.getMpa().getId(), film.getId());
         genreStorage.deleteFilmGenres(film.getId());
@@ -106,14 +103,13 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     private Film makeFilm(ResultSet rs, int rowNum) throws SQLException {
-        int id = rs.getInt("film_id");
-        String name = rs.getString("title");
-        String description = rs.getString("description");
-        LocalDate releaseDate = rs.getDate("release_date").toLocalDate();
-        Integer duration = rs.getInt("duration");
-        Mpa mpa = new Mpa(rs.getInt("mpa_id"), rs.getString("name"));
-        List<Genre> genres = genreStorage.getFilmGenres(rs.getInt("film_id"));
-        Set<Integer> likes = new HashSet<>(getFilmLikes(rs.getInt("film_id")));
-        return new Film(id, name, description, releaseDate, duration, mpa, genres, likes);
+        return new Film(rs.getInt("film_id"),
+                rs.getString("title"),
+                rs.getString("description"),
+                rs.getDate("release_date").toLocalDate(),
+                rs.getInt("duration"),
+                new Mpa(rs.getInt("mpa_id"), rs.getString("name")),
+                genreStorage.getFilmGenres(rs.getInt("film_id")),
+                new HashSet<>(getFilmLikes(rs.getInt("film_id"))));
     }
 }

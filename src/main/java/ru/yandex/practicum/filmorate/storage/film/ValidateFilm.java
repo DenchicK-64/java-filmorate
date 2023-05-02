@@ -11,7 +11,7 @@ public class ValidateFilm {
     static final int MAX_DESCRIPTION_LENGTH = 200;
     static final LocalDate MIN_RELEASE_DATE = LocalDate.of(1895, 12, 28);
 
-    public void validate(Film film) {
+    public static void validateFilm(Film film) {
         if (film.getName() == null || film.getName().isEmpty() || film.getName().isBlank()) {
             log.error("Название не может быть пустым");
             throw new ValidationException("Название не может быть пустым");

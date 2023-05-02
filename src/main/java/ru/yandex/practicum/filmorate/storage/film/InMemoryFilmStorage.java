@@ -15,7 +15,6 @@ import java.util.stream.Collectors;
 @Slf4j
 @Component
 public class InMemoryFilmStorage implements FilmStorage {
-    private final ValidateFilm validateFilm = new ValidateFilm();
     private final UserStorage userStorage;
 
     @Autowired
@@ -28,7 +27,7 @@ public class InMemoryFilmStorage implements FilmStorage {
 
     @Override
     public Film create(Film film) {
-        validateFilm.validate(film);
+        ValidateFilm.validateFilm(film);
         film.setId(filmId++);
         films.put(film.getId(), film);
         log.info("Фильм добавлен: {}", film.getName());
@@ -41,7 +40,7 @@ public class InMemoryFilmStorage implements FilmStorage {
             log.error("Нельзя выполнить обновление: фильм не найден в базе данных");
             throw new FilmNotFoundException("Нельзя выполнить обновление: фильм не найден в базе данных");
         }
-        validateFilm.validate(film);
+        ValidateFilm.validateFilm(film);
         films.put(film.getId(), film);
         log.info("Фильм добавлен: {}", film.getName());
         return film;

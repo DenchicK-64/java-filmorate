@@ -10,7 +10,7 @@ import java.time.LocalDate;
 @Slf4j
 public class ValidateUser {
 
-    public void validate(@Valid User user) {
+    public static void validateUser(@Valid User user) {
         if (user.getEmail() == null || user.getEmail().isBlank() || !user.getEmail().contains("@")) {
             log.error("Электронная почта не может быть пустой и должна содержать символ @");
             throw new ValidationException("Электронная почта не может быть пустой и должна содержать символ @");

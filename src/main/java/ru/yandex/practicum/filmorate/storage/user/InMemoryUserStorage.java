@@ -13,13 +13,12 @@ import java.util.stream.Collectors;
 @Component("inMemoryUserStorage")
 @NoArgsConstructor
 public class InMemoryUserStorage implements UserStorage {
-    ValidateUser validateUser = new ValidateUser();
     private final Map<Integer, User> users = new HashMap<>();
     private int userId = 1;
 
     @Override
     public User create(User user) {
-        validateUser.validate(user);
+        ValidateUser.validateUser(user);
         user.setId(userId++);
         users.put(user.getId(), user);
         log.info("Пользователь добавлен: {}", user.getName());
@@ -32,7 +31,7 @@ public class InMemoryUserStorage implements UserStorage {
             log.error("Нельзя выполнить обновление: пользователь не найден в базе данных");
             throw new UserNotFoundException("Нельзя выполнить обновление: пользователь не найден в базе данных");
         }
-        validateUser.validate(user);
+        ValidateUser.validateUser(user);
         users.put(user.getId(), user);
         log.info("Пользователь добавлен: {}", user.getName());
         return user;

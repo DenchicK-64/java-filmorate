@@ -34,8 +34,7 @@ public class MpaDbStorage implements MpaStorage {
     }
 
     private Mpa makeMpa(ResultSet rs) throws SQLException {
-        Integer id = rs.getInt("mpa_id");
-        String name = rs.getString("name");
-        return new Mpa(id, name);
+        return new Mpa(rs.getInt("mpa_id"),
+                rs.getString("name"));
     }
 }

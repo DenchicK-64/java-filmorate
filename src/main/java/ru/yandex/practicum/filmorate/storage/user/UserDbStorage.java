@@ -13,13 +13,11 @@ import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.time.LocalDate;
 import java.util.*;
 
 @Slf4j
 @Component("userDbStorage")
 public class UserDbStorage implements UserStorage {
-    private final ValidateUser validateUser = new ValidateUser();
     private final JdbcTemplate jdbcTemplate;
 
     public UserDbStorage(JdbcTemplate jdbcTemplate) {
@@ -28,7 +26,7 @@ public class UserDbStorage implements UserStorage {
 
     @Override
     public User create(User user) {
-        validateUser.validate(user);
+        ValidateUser.validateUser(user);
         KeyHolder keyHolder = new GeneratedKeyHolder();
         jdbcTemplate.update(con -> {
             PreparedStatement preparedStatement = con.prepareStatement(UserSqlRequestList.CREATE_USER,
@@ -46,7 +44,7 @@ public class UserDbStorage implements UserStorage {
     @Override
     public User update(User user) {
         userCheckInDb(user.getId());
-        validateUser.validate(user);
+        ValidateUser.validateUser(user);
         jdbcTemplate.update(UserSqlRequestList.UPDATE_USER, user.getEmail(), user.getLogin(), user.getName(),
                 user.getBirthday(), user.getId());
         return user;
@@ -106,12 +104,9 @@ public class UserDbStorage implements UserStorage {
     }
 
     private User makeUser(ResultSet rs, int rowNum) throws SQLException {
-        int id = rs.getInt("user_id");
-        String email = rs.getString("email");
-        String login = rs.getString("login");
-        String name = rs.getString("name");
-        LocalDate birthday = rs.getDate("birthday").toLocalDate();
-        Set<Integer> friends = new HashSet<>(rs.getInt("user_id"));
-        return new User(id, email, login, name, birthday, friends);
+        return new User(rs.getInt("user_id"),
+                rs.getString("email"), rs.getString("login"),
+                rs.getString("name"),
+                rs.getDate("birthday").toLocalDate());
     }
 }

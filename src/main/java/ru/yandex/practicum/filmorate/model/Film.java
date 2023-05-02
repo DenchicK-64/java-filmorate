@@ -6,7 +6,6 @@ import java.time.LocalDate;
 import java.util.*;
 
 @Data
-
 @NoArgsConstructor
 @AllArgsConstructor
 public class Film {
