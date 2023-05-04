@@ -10,8 +10,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
-@Component("inMemoryUserStorage")
-@NoArgsConstructor
+@Component
 public class InMemoryUserStorage implements UserStorage {
     private final Map<Integer, User> users = new HashMap<>();
     private int userId = 1;
@@ -27,10 +26,7 @@ public class InMemoryUserStorage implements UserStorage {
 
     @Override
     public User update(User user) {
-        if (!users.containsKey(user.getId())) {
-            log.error("Нельзя выполнить обновление: пользователь не найден в базе данных");
-            throw new UserNotFoundException("Нельзя выполнить обновление: пользователь не найден в базе данных");
-        }
+        userCheckffInDb(user.getId());
         ValidateUser.validateUser(user);
         users.put(user.getId(), user);
         log.info("Пользователь добавлен: {}", user.getName());
@@ -45,9 +41,7 @@ public class InMemoryUserStorage implements UserStorage {
 
     @Override
     public User getUser(int id) {
-        if (!users.containsKey(id)) {
-            throw new UserNotFoundException("Пользователь не найден в базе данных");
-        }
+        userCheckffInDb(id);
         return users.get(id);
     }
 
@@ -84,5 +78,12 @@ public class InMemoryUserStorage implements UserStorage {
             commonFriends.add(getUser(id));
         }
         return commonFriends;
+    }
+
+
+    public void userCheckffInDb(int userId) {
+        if (!users.containsKey(userId)) {
+            throw new UserNotFoundException("Пользователь не найден в базе данных");
+        }
     }
 }

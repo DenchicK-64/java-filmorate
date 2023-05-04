@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 
 import java.time.LocalDate;
@@ -16,7 +17,9 @@ public class Film {
     private Integer duration;
     private Mpa mpa;
     private List<Genre> genres = new ArrayList<>();
+    @JsonIgnore
     private Set<Integer> likes = new HashSet<>();
+    private Integer likesCounter;
 
     public Film(int id, String name, String description, LocalDate releaseDate, Integer duration, Mpa mpa) {
         this.id = id;
@@ -27,7 +30,7 @@ public class Film {
         this.mpa = mpa;
     }
 
-    public Film(int id, String name, String description, LocalDate releaseDate, Integer duration, Mpa mpa, List<Genre> genres) {
+    public Film(int id, String name, String description, LocalDate releaseDate, Integer duration, Mpa mpa, List<Genre> genres, Integer likesCounter) {
         this.id = id;
         this.name = name;
         this.description = description;
@@ -35,6 +38,8 @@ public class Film {
         this.duration = duration;
         this.mpa = mpa;
         this.genres = genres;
+        this.likesCounter = likesCounter;
+
     }
 
     public Film(String name, String description, LocalDate releaseDate, Integer duration, Mpa mpa, List<Genre> genres) {
@@ -46,12 +51,12 @@ public class Film {
         this.genres = genres;
     }
 
-    public Film(String name, String description, LocalDate releaseDate, Integer duration, Mpa mpa, Set<Integer> likes) {
+    public Film(String name, String description, LocalDate releaseDate, Integer duration, Mpa mpa, Integer likesCounter) {
         this.name = name;
         this.description = description;
         this.releaseDate = releaseDate;
         this.duration = duration;
         this.mpa = mpa;
-        this.likes = likes;
+        this.likesCounter = likesCounter;
     }
 }

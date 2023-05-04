@@ -15,8 +15,7 @@ import java.util.*;
 public class FilmService {
     private final FilmStorage filmStorage;
 
-    @Autowired
-    public FilmService(@Qualifier("filmDbStorage") FilmStorage filmStorage) {
+    public FilmService(@Qualifier("FilmDbStorage") FilmStorage filmStorage) {
         this.filmStorage = filmStorage;
     }
 

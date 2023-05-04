@@ -1,8 +1,10 @@
 package ru.yandex.practicum.filmorate.service;
 
 import lombok.AllArgsConstructor;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.model.Genre;
+import ru.yandex.practicum.filmorate.storage.genre.GenreDbStorage;
 import ru.yandex.practicum.filmorate.storage.genre.GenreStorage;
 
 import java.util.List;
@@ -10,6 +12,8 @@ import java.util.List;
 @Service
 @AllArgsConstructor
 public class GenreService {
+
+
     private final GenreStorage genreStorage;
 
     public List<Genre> findAllGenres() {
@@ -27,4 +31,6 @@ public class GenreService {
     public void deleteFilmGenres(int filmId) {
         genreStorage.deleteFilmGenres(filmId);
     }
+
+    public List<Genre> getFilmGenres(int filmId) {return genreStorage.getFilmGenres(filmId);}
 }

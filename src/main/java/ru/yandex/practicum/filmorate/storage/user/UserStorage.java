@@ -22,4 +22,6 @@ public interface UserStorage {
     List<User> getUserFriends(int userId);
 
     List<User> getCommonFriends(int userId, int friendId);
+
+    /*void userCheckInDb(int userId);*/
 }

@@ -13,14 +13,14 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
-@Component
+@Component/*("InMemoryFilmStorage")*/
 public class InMemoryFilmStorage implements FilmStorage {
-    private final UserStorage userStorage;
+    /*private final UserStorage userStorage;*/
 
-    @Autowired
-    public InMemoryFilmStorage(@Qualifier("inMemoryUserStorage") UserStorage userStorage) {
+    /*@Autowired
+    public InMemoryFilmStorage(@Qualifier("InMemoryUserStorage") UserStorage userStorage) {
         this.userStorage = userStorage;
-    }
+    }*/
 
     private final Map<Integer, Film> films = new HashMap<>();
     private int filmId = 1;
@@ -63,15 +63,15 @@ public class InMemoryFilmStorage implements FilmStorage {
     @Override
     public void addLike(int filmId, int userId) {
         Film film = getFilm(filmId);
-        User user = userStorage.getUser(userId);
-        film.getLikes().add(user.getId());
+        /*User user = userStorage.getUser(userId);*/
+        film.getLikes().add(userId);
     }
 
     @Override
     public void deleteLike(int filmId, int userId) {
         Film film = getFilm(filmId);
-        User user = userStorage.getUser(userId);
-        film.getLikes().remove(user.getId());
+        /*User user = userStorage.getUser(userId);*/
+        film.getLikes().remove(userId);
     }
 
     @Override

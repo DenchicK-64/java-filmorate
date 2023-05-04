@@ -1,6 +1,10 @@
 package ru.yandex.practicum.filmorate.storage.film;
 
+import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
@@ -8,6 +12,7 @@ import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exceptions.FilmNotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Mpa;
+import ru.yandex.practicum.filmorate.storage.genre.GenreDbStorage;
 import ru.yandex.practicum.filmorate.storage.genre.GenreStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserDbStorage;
 
@@ -17,18 +22,19 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
 
-@Component
+@Component("FilmDbStorage")
 @Slf4j
+@AllArgsConstructor
 public class FilmDbStorage implements FilmStorage {
     private final JdbcTemplate jdbcTemplate;
-    private final GenreStorage genreStorage;
-    private final UserDbStorage userDbStorage;
+    private GenreStorage genreStorage;
+    private UserDbStorage userDbStorage;
 
-    public FilmDbStorage(JdbcTemplate jdbcTemplate, GenreStorage genreStorage, UserDbStorage userDbStorage) {
+    /*public FilmDbStorage(JdbcTemplate jdbcTemplate, @Autowired (required = false) GenreStorage genreStorage, @Autowired(required = false) UserDbStorage userDbStorage) {
         this.jdbcTemplate = jdbcTemplate;
         this.genreStorage = genreStorage;
         this.userDbStorage = userDbStorage;
-    }
+    }*/
 
     @Override
     public Film create(Film film) {
@@ -41,6 +47,7 @@ public class FilmDbStorage implements FilmStorage {
             preparedStatement.setDate(3, Date.valueOf(film.getReleaseDate()));
             preparedStatement.setInt(4, film.getDuration());
             preparedStatement.setInt(5, film.getMpa().getId());
+            preparedStatement.setInt(6, film.getLikesCounter());
             return preparedStatement;
         }, keyHolder);
         int id = Objects.requireNonNull(keyHolder.getKey()).intValue();
@@ -56,7 +63,7 @@ public class FilmDbStorage implements FilmStorage {
         filmCheckInDb(film.getId());
         ValidateFilm.validateFilm(film);
         jdbcTemplate.update(FilmSqlRequestList.UPDATE_FILM, film.getName(), film.getDescription(), film.getReleaseDate(),
-                film.getDuration(), film.getMpa().getId(), film.getId());
+                film.getDuration(), film.getMpa().getId(), film.getLikesCounter(), film.getId());
         genreStorage.deleteFilmGenres(film.getId());
         if (!(film.getGenres() == null || film.getName().isEmpty())) {
             genreStorage.setFilmGenres(film.getId(), film.getGenres());
@@ -102,6 +109,7 @@ public class FilmDbStorage implements FilmStorage {
         return jdbcTemplate.queryForList(FilmSqlRequestList.GET_FILM_LIKES, Integer.class, filmId);
     }
 
+
     private Film makeFilm(ResultSet rs, int rowNum) throws SQLException {
         return new Film(rs.getInt("film_id"),
                 rs.getString("title"),
@@ -110,6 +118,6 @@ public class FilmDbStorage implements FilmStorage {
                 rs.getInt("duration"),
                 new Mpa(rs.getInt("mpa_id"), rs.getString("name")),
                 genreStorage.getFilmGenres(rs.getInt("film_id")),
-                new HashSet<>(getFilmLikes(rs.getInt("film_id"))));
+                rs.getInt("likes_counter"));
     }
 }

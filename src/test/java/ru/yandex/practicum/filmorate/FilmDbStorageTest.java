@@ -50,10 +50,10 @@ public class FilmDbStorageTest {
                 LocalDate.of(1990, 1, 1), new HashSet<>());
         testFilm = new Film(1, "Some name", "Some description",
                 LocalDate.of(2000, 1, 1), 100, new Mpa(1, "G"),
-                new ArrayList<>(), new HashSet<>());
+                new ArrayList<>(), 0);
         testFilmTwo = new Film(2, "Some name2", "Some description2",
                 LocalDate.of(1990, 1, 1), 90, new Mpa(3, "PG-13"),
-                new ArrayList<>(), new HashSet<>());
+                new ArrayList<>(), 3);
     }
 
     @Test
@@ -140,7 +140,7 @@ public class FilmDbStorageTest {
         filmDbStorage.update(testFilm);
         filmDbStorage.update(testFilmTwo);
         assertEquals(filmDbStorage.getPopularFilms(10).size(), 2);
-        assertEquals(filmDbStorage.getPopularFilms(10).get(0).getLikes().size(), 2);
+        assertEquals(testFilm.getLikesCounter(), filmDbStorage.getPopularFilms(5).get(0).getLikes().size());
     }
 
     @Test
@@ -152,7 +152,7 @@ public class FilmDbStorageTest {
                     public void execute() throws Throwable {
                         filmDbStorage.create(new Film(1, " ", "Some description",
                                 LocalDate.of(2000, 1, 1), 100, new Mpa(1, "G"),
-                                new ArrayList<>(), new HashSet<>()));
+                                new ArrayList<>(), 3));
                     }
                 });
         assertEquals("Название не может быть пустым", exception.getMessage());
@@ -224,7 +224,7 @@ public class FilmDbStorageTest {
                                 " непременное требование главнокомандующего, чтобы люди были в шинелях и чехлах, и " +
                                 "что в противном случае главнокомандующий будет недоволен.",
                                 LocalDate.of(2000, 1, 1), 100, new Mpa(1, "G"),
-                                new ArrayList<>(), new HashSet<>()));
+                                new ArrayList<>(), 3));
                     }
                 });
         assertEquals("Максимальная длина описания — 200 символов", exception.getMessage());
@@ -239,7 +239,7 @@ public class FilmDbStorageTest {
                     public void execute() throws Throwable {
                         filmDbStorage.create(new Film(1, "Some name", "Some description",
                                 LocalDate.of(1000, 1, 1), 100, new Mpa(1, "G"),
-                                new ArrayList<>(), new HashSet<>()));
+                                new ArrayList<>(), 3));
                     }
                 });
         assertEquals("Дата релиза — не раньше 28 декабря 1895 г.", exception.getMessage());
@@ -254,7 +254,7 @@ public class FilmDbStorageTest {
                     public void execute() throws Throwable {
                         filmDbStorage.create(new Film(1, "Some name", "Some description",
                                 LocalDate.of(2000, 1, 1), -100, new Mpa(1, "G"),
-                                new ArrayList<>(), new HashSet<>()));
+                                new ArrayList<>(), 3));
                     }
                 });
         assertEquals("Продолжительность фильма должна быть больше 0", exception.getMessage());
@@ -269,7 +269,7 @@ public class FilmDbStorageTest {
                     public void execute() throws Throwable {
                         filmDbStorage.update(new Film(10, "Some name", "Some description",
                                 LocalDate.of(2000, 1, 1), 100, new Mpa(1, "G"),
-                                new ArrayList<>(), new HashSet<>()));
+                                new ArrayList<>(), 3));
                     }
                 });
         assertEquals("Фильм не найден в базе данных", exception.getMessage());

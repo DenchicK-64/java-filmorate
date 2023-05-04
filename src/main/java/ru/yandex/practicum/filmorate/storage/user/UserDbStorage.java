@@ -1,6 +1,9 @@
 package ru.yandex.practicum.filmorate.storage.user;
 
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Primary;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
@@ -16,13 +19,15 @@ import java.sql.SQLException;
 import java.util.*;
 
 @Slf4j
-@Component("userDbStorage")
+@Component("UserDbStorage")
+@AllArgsConstructor
 public class UserDbStorage implements UserStorage {
     private final JdbcTemplate jdbcTemplate;
 
+/*    @Autowired
     public UserDbStorage(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
-    }
+    }*/
 
     @Override
     public User create(User user) {
@@ -96,6 +101,7 @@ public class UserDbStorage implements UserStorage {
         return jdbcTemplate.query(UserSqlRequestList.GET_COMMON_FRIENDS, this::makeUser, userId, friendId);
     }
 
+    
     public void userCheckInDb(int userId) {
         Boolean checkUser = jdbcTemplate.queryForObject(UserSqlRequestList.USER_CHECK_IN_DB, Boolean.class, userId);
         if (Boolean.FALSE.equals(checkUser)) {
