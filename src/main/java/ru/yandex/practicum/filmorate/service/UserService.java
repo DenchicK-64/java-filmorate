@@ -3,13 +3,13 @@ package ru.yandex.practicum.filmorate.service;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -29,12 +29,12 @@ public class UserService {
         return userStorage.update(user);
     }
 
-    public Collection<User> findAll() {
+    public List<User> findAll() {
         return userStorage.findAll();
     }
 
     public void addFriend(int userId, int friendId) {
-        userStorage.addFriend(userId, friendId);
+       userStorage.addFriend(userId, friendId);
     }
 
     public void deleteFriend(int userId, int friendId) {
@@ -53,7 +53,7 @@ public class UserService {
         return userStorage.getCommonFriends(userId, friendId);
     }
 
-    /*public void userCheckInDb(int userId) {
-       userStorage.userCheckInDb(userId);
-    }*/
+    public void userCheckInDb(int userId) {
+        userStorage.userCheckInDb(userId);
+    }
 }

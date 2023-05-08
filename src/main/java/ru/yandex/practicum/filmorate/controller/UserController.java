@@ -2,19 +2,27 @@ package ru.yandex.practicum.filmorate.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.UserService;
 
 import java.util.Collection;
+import java.util.List;
 
 @Slf4j
 @RequestMapping("/users")
 @RestController
 @RequiredArgsConstructor
 public class UserController {
+
     private final UserService userService;
+
+    /*@Autowired
+    public UserController(UserService userService) {
+        this.userService = userService;
+    }*/
 
     @PostMapping
     public User create(@RequestBody User user) throws ValidationException {
@@ -29,7 +37,7 @@ public class UserController {
     }
 
     @GetMapping
-    public Collection<User> findAll() {
+    public List<User> findAll() {
         log.info("Получение всех пользователей");
         return userService.findAll();
     }
@@ -52,13 +60,13 @@ public class UserController {
     }
 
     @GetMapping("/{id}/friends")
-    public Collection<User> getUserFriends(@PathVariable Integer id) {
+    public List<User> getUserFriends(@PathVariable Integer id) {
         log.info("Запрос на получение всех друзей пользователя");
         return userService.getUserFriends(id);
     }
 
     @GetMapping("/{id}/friends/common/{otherId}")
-    public Collection<User> getCommonFriends(@PathVariable Integer id, @PathVariable Integer otherId) {
+    public List<User> getCommonFriends(@PathVariable Integer id, @PathVariable Integer otherId) {
         log.info("Запрос на получение списка друзей пользователя, общих с другим пользователем");
         return userService.getCommonFriends(id, otherId);
     }

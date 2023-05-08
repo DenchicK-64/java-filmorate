@@ -1,19 +1,33 @@
 package ru.yandex.practicum.filmorate.storage.genre;
 
 import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
+import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 @Component
 @AllArgsConstructor
 public class GenreDbStorage implements GenreStorage {
     private final JdbcTemplate jdbcTemplate;
+
+    /*@Autowired
+    public GenreDbStorage(JdbcTemplate jdbcTemplate) {
+        this.jdbcTemplate = jdbcTemplate;
+    }*/
 
     @Override
     public List<Genre> findAllGenres() {
@@ -41,6 +55,27 @@ public class GenreDbStorage implements GenreStorage {
     @Override
     public void deleteFilmGenres(int filmId) {
         jdbcTemplate.update(GenreSqlRequestList.DELETE_FILM_GENRES, filmId);
+    }
+
+    @Override
+    public Map<Integer, Film> getGenresFromFilms(Map<Integer, Film> films) {
+        Set<Integer> filmIds = films.keySet();
+        if (filmIds.isEmpty()) {
+            return films;
+        }
+        SqlParameterSource parameters = new MapSqlParameterSource("filmIds", filmIds);
+        NamedParameterJdbcTemplate namedParameterJdbcTemplate = new NamedParameterJdbcTemplate(jdbcTemplate);
+        String sql = "SELECT genres.genre_id, genres.name, film_genres.film_id FROM genres INNER JOIN " +
+                "film_genres ON genres.genre_id = film_genres.genre_id WHERE film_genres.film_id IN (:filmsId)";
+        namedParameterJdbcTemplate.query(sql, parameters, (rs, rowNum) -> {
+            Film film = films.get(rs.getInt("film_id"));
+            return film.getGenres().add(
+                    new Genre(
+                            rs.getInt("genre_id"),
+                            rs.getString("name")
+                    ));
+        });
+        return films;
     }
 
     private void genreCheckInDb(int genreId) {

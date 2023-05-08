@@ -5,12 +5,14 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exceptions.UserNotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.storage.user.UserStorage;
+import ru.yandex.practicum.filmorate.storage.user.ValidateUser;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
-@Component
+@Component("InMemoryUserStorage")
 public class InMemoryUserStorage implements UserStorage {
     private final Map<Integer, User> users = new HashMap<>();
     private int userId = 1;
@@ -26,7 +28,7 @@ public class InMemoryUserStorage implements UserStorage {
 
     @Override
     public User update(User user) {
-        userCheckffInDb(user.getId());
+        userCheckInDb(user.getId());
         ValidateUser.validateUser(user);
         users.put(user.getId(), user);
         log.info("Пользователь добавлен: {}", user.getName());
@@ -34,14 +36,14 @@ public class InMemoryUserStorage implements UserStorage {
     }
 
     @Override
-    public Collection<User> findAll() {
+    public List<User> findAll() {
         log.info("Получение всех фильмов");
-        return users.values();
+        return new ArrayList<>(users.values());
     }
 
     @Override
     public User getUser(int id) {
-        userCheckffInDb(id);
+        userCheckInDb(id);
         return users.get(id);
     }
 
@@ -80,8 +82,8 @@ public class InMemoryUserStorage implements UserStorage {
         return commonFriends;
     }
 
-
-    public void userCheckffInDb(int userId) {
+    @Override
+    public void userCheckInDb (int userId) {
         if (!users.containsKey(userId)) {
             throw new UserNotFoundException("Пользователь не найден в базе данных");
         }

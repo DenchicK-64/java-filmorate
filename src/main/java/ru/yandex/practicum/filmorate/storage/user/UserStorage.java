@@ -11,7 +11,7 @@ public interface UserStorage {
 
     User update(User user);
 
-    Collection<User> findAll();
+    List<User> findAll();
 
     User getUser(int userId);
 
@@ -23,5 +23,5 @@ public interface UserStorage {
 
     List<User> getCommonFriends(int userId, int friendId);
 
-    /*void userCheckInDb(int userId);*/
+    void userCheckInDb(int userId);
 }

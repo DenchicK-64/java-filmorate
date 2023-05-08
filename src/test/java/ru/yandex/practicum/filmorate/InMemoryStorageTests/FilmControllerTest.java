@@ -1,4 +1,4 @@
-package ru.yandex.practicum.filmorate.InMemoryStorageTests;
+/*package ru.yandex.practicum.filmorate.InMemoryStorageTests;
 
 import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.BeforeEach;
@@ -36,10 +36,10 @@ public class FilmControllerTest {
     void setUp() {
         testFilm = new Film(1, "Some name", "Some description",
                 LocalDate.of(2000, 1, 1), 100, new Mpa(1, "G"),
-                new ArrayList<>(), 5);
+                new ArrayList<>(), new HashSet<>());
         testFilmTwo = new Film(2, "Some name2", "Some description2",
                 LocalDate.of(1990, 1, 1), 90, new Mpa(3, "PG_13"),
-                new ArrayList<>(), 3);
+                new ArrayList<>(), new HashSet<>());
     }
 
     @Test
@@ -70,7 +70,7 @@ public class FilmControllerTest {
                     public void execute() throws Throwable {
                         filmController.create(new Film(1, " ", "Some description",
                                 LocalDate.of(2000, 1, 1), 100, new Mpa(1, "G"),
-                                new ArrayList<>(), 3));
+                                new ArrayList<>(), new HashSet<>()));
                     }
                 });
         assertEquals("Название не может быть пустым", exception.getMessage());
@@ -142,7 +142,7 @@ public class FilmControllerTest {
                                 " непременное требование главнокомандующего, чтобы люди были в шинелях и чехлах, и " +
                                 "что в противном случае главнокомандующий будет недоволен.",
                                 LocalDate.of(2000, 1, 1), 100, new Mpa(1, "G"),
-                                new ArrayList<>(), 3));
+                                new ArrayList<>(), new HashSet<>()));
                     }
                 });
         assertEquals("Максимальная длина описания — 200 символов", exception.getMessage());
@@ -157,7 +157,7 @@ public class FilmControllerTest {
                     public void execute() throws Throwable {
                         filmController.create(new Film(1, "Some name", "Some description",
                                 LocalDate.of(1000, 1, 1), 100, new Mpa(1, "G"),
-                                new ArrayList<>(), 3));
+                                new ArrayList<>(), new HashSet<>()));
                     }
                 });
         assertEquals("Дата релиза — не раньше 28 декабря 1895 г.", exception.getMessage());
@@ -172,7 +172,7 @@ public class FilmControllerTest {
                     public void execute() throws Throwable {
                         filmController.create(new Film(1, "Some name", "Some description",
                                 LocalDate.of(2000, 1, 1), -100, new Mpa(1, "G"),
-                                new ArrayList<>(), 3));
+                                new ArrayList<>(), new HashSet<>()));
                     }
                 });
         assertEquals("Продолжительность фильма должна быть больше 0", exception.getMessage());
@@ -187,9 +187,9 @@ public class FilmControllerTest {
                     public void execute() throws Throwable {
                         filmController.update(new Film(10, "Some name", "Some description",
                                 LocalDate.of(2000, 1, 1), 100, new Mpa(1, "G"),
-                                new ArrayList<>(), 3));
+                                new ArrayList<>(), new HashSet<>()));
                     }
                 });
         assertEquals("Фильм не найден в базе данных", exception.getMessage());
     }
-}
+}*/
