@@ -19,13 +19,11 @@ public class Film {
     private List<Genre> genres = new ArrayList<>();
     @JsonIgnore
     private Set<Integer> likes = new HashSet<>();
+    private Integer likesCounter;
 
     public void setLikesCounter(Integer likesCounter) {
         this.likesCounter = likes.size();
     }
-
-    private Integer likesCounter;
-
     public Film(int id, String name, String description, LocalDate releaseDate, Integer duration, Mpa mpa) {
         this.id = id;
         this.name = name;

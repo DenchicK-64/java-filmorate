@@ -11,7 +11,8 @@ public class FilmSqlRequestList {
     public static final String DELETE_LIKE = "DELETE FROM likes WHERE film_id = ? AND user_id = ?";
 
     public static final String GET_POPULAR_FILMS = "SELECT films.*, mpa.*, FROM films " +
-            "JOIN mpa ON films.mpa_id = mpa.mpa_id ORDER BY films.likes_counter DESC LIMIT ?";
+            "LEFT JOIN mpa ON films.mpa_id = mpa.mpa_id " +
+            "ORDER BY films.likes_counter DESC LIMIT ?";
 
     public static final String GET_FILM_LIKES = "SELECT user_id FROM likes WHERE film_id = ?";
 

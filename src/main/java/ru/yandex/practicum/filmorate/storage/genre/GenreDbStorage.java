@@ -2,7 +2,9 @@ package ru.yandex.practicum.filmorate.storage.genre;
 
 import lombok.AllArgsConstructor;
 
+import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
@@ -13,6 +15,7 @@ import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 
+import javax.validation.ConstraintViolationException;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -42,7 +45,7 @@ public class GenreDbStorage implements GenreStorage {
     }
 
     @Override
-    public void setFilmGenres(int filmId, List<Genre> genres) {
+    public void setFilmGenres(int filmId, List<Genre> genres) throws ConstraintViolationException{
 
         try {
             jdbcTemplate.batchUpdate(GenreSqlRequestList.SET_FILM_GENRE, new BatchPreparedStatementSetter() {
@@ -51,12 +54,13 @@ public class GenreDbStorage implements GenreStorage {
                     ps.setInt(1, filmId);
                     ps.setInt(2, genres.get(i).getId());
                 }
+
                 @Override
                 public int getBatchSize() {
                     return genres.size();
                 }
             });
-        } catch (DataIntegrityViolationException e) {
+        } catch (Throwable exception) {
             System.out.println("Дубликаты не допустимы");
         }
     }
