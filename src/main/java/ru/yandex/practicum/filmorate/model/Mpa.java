@@ -5,8 +5,13 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
+@NoArgsConstructor
 @AllArgsConstructor
 public class Mpa {
     private Integer id;
     private String name;
+
+    public Mpa(Integer id) {
+        this.id = id;
+    }
 }

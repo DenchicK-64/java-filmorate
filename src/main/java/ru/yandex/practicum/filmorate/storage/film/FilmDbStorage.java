@@ -51,10 +51,10 @@ public class FilmDbStorage implements FilmStorage {
         }, keyHolder);
         int id = Objects.requireNonNull(keyHolder.getKey()).intValue();
         film.setId(id);
-        if (!(film.getGenres() == null || film.getName().isEmpty())) {
+        if (!film.getGenres().isEmpty()) {
             genreStorage.setFilmGenres(film.getId(), film.getGenres());
         }
-        int count = film.getLikes().size();
+        int count = getFilmLikes(film.getId()).size();
         film.setLikesCounter(count);
         return getFilm(film.getId());
     }
@@ -65,11 +65,11 @@ public class FilmDbStorage implements FilmStorage {
         filmCheckInDb(film.getId());
         jdbcTemplate.update(FilmSqlRequestList.UPDATE_FILM, film.getName(), film.getDescription(), film.getReleaseDate(),
                 film.getDuration(), film.getMpa().getId(), film.getId());
-        genreStorage.deleteFilmGenres(film.getId());
-        if (!(film.getGenres() == null || film.getName().isEmpty())) {
+        if (!film.getGenres().isEmpty()) {
             genreStorage.setFilmGenres(film.getId(), film.getGenres());
         }
-        int count = film.getLikes().size();
+        genreStorage.setFilmGenres(film.getId(), film.getGenres());
+        int count = getFilmLikes(film.getId()).size();
         film.setLikesCounter(count);
         return getFilm(film.getId());
     }
@@ -92,7 +92,6 @@ public class FilmDbStorage implements FilmStorage {
         int likes = film.getLikesCounter();
         likes++;
         film.setLikesCounter(likes);
-        update(film);
     }
 
     @Override
@@ -102,7 +101,6 @@ public class FilmDbStorage implements FilmStorage {
         int likes = film.getLikesCounter();
         likes--;
         film.setLikesCounter(likes);
-        update(film);
     }
 
     @Override

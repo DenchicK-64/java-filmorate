@@ -1,10 +1,9 @@
 package ru.yandex.practicum.filmorate.storage.user;
 
 public class UserSqlRequestList {
-    public static final String CREATE_USER = "INSERT INTO users (email, login, name, birthday) " +
-            "VALUES (?, ?, ?, ?)";
-    public static final String UPDATE_USER = "UPDATE users SET email = ?, login = ?, name = ?, " +
-            "birthday = ? WHERE user_id = ?";
+    public static final String CREATE_USER = "INSERT INTO users (email, login, name, birthday) VALUES (?, ?, ?, ?)";
+    public static final String UPDATE_USER = "UPDATE users SET email = ?, login = ?, name = ?, birthday = ? " +
+            "WHERE user_id = ?";
 
     public static final String FIND_ALL_USERS = "SELECT * FROM users";
 

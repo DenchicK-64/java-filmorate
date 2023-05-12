@@ -1,14 +1,13 @@
 package ru.yandex.practicum.filmorate.storage.genre;
 
 import lombok.AllArgsConstructor;
-import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
+
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
@@ -23,11 +22,6 @@ import java.util.Set;
 @AllArgsConstructor
 public class GenreDbStorage implements GenreStorage {
     private final JdbcTemplate jdbcTemplate;
-
-    /*@Autowired
-    public GenreDbStorage(JdbcTemplate jdbcTemplate) {
-        this.jdbcTemplate = jdbcTemplate;
-    }*/
 
     @Override
     public List<Genre> findAllGenres() {
@@ -48,7 +42,11 @@ public class GenreDbStorage implements GenreStorage {
     @Override
     public void setFilmGenres(int filmId, List<Genre> genres) {
         for (Genre genre : genres) {
-            jdbcTemplate.update(GenreSqlRequestList.SET_FILM_GENRE, filmId, genre.getId());
+            try {
+                jdbcTemplate.update(GenreSqlRequestList.SET_FILM_GENRE, filmId, genre.getId());
+            } catch (DataIntegrityViolationException e) {
+                System.out.println("Дублирование жанров не допускается!");
+            }
         }
     }
 
@@ -63,7 +61,7 @@ public class GenreDbStorage implements GenreStorage {
         if (filmIds.isEmpty()) {
             return films;
         }
-        SqlParameterSource parameters = new MapSqlParameterSource("filmIds", filmIds);
+        SqlParameterSource parameters = new MapSqlParameterSource("filmsId", filmIds);
         NamedParameterJdbcTemplate namedParameterJdbcTemplate = new NamedParameterJdbcTemplate(jdbcTemplate);
         String sql = "SELECT genres.genre_id, genres.name, film_genres.film_id FROM genres INNER JOIN " +
                 "film_genres ON genres.genre_id = film_genres.genre_id WHERE film_genres.film_id IN (:filmsId)";

@@ -7,6 +7,7 @@ import java.time.LocalDate;
 import java.util.*;
 
 @Data
+@NoArgsConstructor
 @AllArgsConstructor
 public class Film {
     private int id;
@@ -18,6 +19,11 @@ public class Film {
     private List<Genre> genres = new ArrayList<>();
     @JsonIgnore
     private Set<Integer> likes = new HashSet<>();
+
+    public void setLikesCounter(Integer likesCounter) {
+        this.likesCounter = likes.size();
+    }
+
     private Integer likesCounter;
 
     public Film(int id, String name, String description, LocalDate releaseDate, Integer duration, Mpa mpa) {

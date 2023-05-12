@@ -16,14 +16,7 @@ import java.util.Map;
 @Service
 @RequiredArgsConstructor
 public class GenreService {
-
-
     private final GenreStorage genreStorage;
-
-    /*@Autowired
-    public GenreService(GenreStorage genreStorage) {
-        this.genreStorage = genreStorage;
-    }*/
 
     public List<Genre> findAllGenres() {
         return genreStorage.findAllGenres();
