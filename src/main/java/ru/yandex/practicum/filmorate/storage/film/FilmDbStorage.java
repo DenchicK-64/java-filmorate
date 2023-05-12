@@ -14,6 +14,7 @@ import ru.yandex.practicum.filmorate.exceptions.FilmNotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Mpa;
+import ru.yandex.practicum.filmorate.storage.genre.GenreDbStorage;
 import ru.yandex.practicum.filmorate.storage.genre.GenreSqlRequestList;
 import ru.yandex.practicum.filmorate.storage.genre.GenreStorage;
 
@@ -31,11 +32,6 @@ public class FilmDbStorage implements FilmStorage {
     private final JdbcTemplate jdbcTemplate;
     private final GenreStorage genreStorage;
 
-   /* @Autowired
-    public FilmDbStorage(JdbcTemplate jdbcTemplate) {
-        this.jdbcTemplate = jdbcTemplate;
-    }*/
-
     @Override
     public Film create(Film film) {
         ValidateFilm.validateFilm(film);
@@ -51,9 +47,8 @@ public class FilmDbStorage implements FilmStorage {
         }, keyHolder);
         int id = Objects.requireNonNull(keyHolder.getKey()).intValue();
         film.setId(id);
-        if (!film.getGenres().isEmpty()) {
+        genreStorage.deleteFilmGenres(film.getId());
             genreStorage.setFilmGenres(film.getId(), film.getGenres());
-        }
         int count = getFilmLikes(film.getId()).size();
         film.setLikesCounter(count);
         return getFilm(film.getId());
@@ -65,9 +60,7 @@ public class FilmDbStorage implements FilmStorage {
         filmCheckInDb(film.getId());
         jdbcTemplate.update(FilmSqlRequestList.UPDATE_FILM, film.getName(), film.getDescription(), film.getReleaseDate(),
                 film.getDuration(), film.getMpa().getId(), film.getId());
-        if (!film.getGenres().isEmpty()) {
-            genreStorage.setFilmGenres(film.getId(), film.getGenres());
-        }
+        genreStorage.deleteFilmGenres(film.getId());
         genreStorage.setFilmGenres(film.getId(), film.getGenres());
         int count = getFilmLikes(film.getId()).size();
         film.setLikesCounter(count);

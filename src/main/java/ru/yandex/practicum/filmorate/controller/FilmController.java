@@ -24,13 +24,13 @@ public class FilmController {
     }*/
 
     @PostMapping
-    public Film create(@RequestBody Film film) throws ValidationException {
+    public Film create(@RequestBody Film film) {
         log.info("Фильм добавлен: {}", film.getName());
         return filmService.create(film);
     }
 
     @PutMapping
-    public Film update(@RequestBody Film film) throws ValidationException {
+    public Film update(@RequestBody Film film) {
         log.info("Фильм добавлен: {}", film.getName());
         return filmService.update(film);
     }

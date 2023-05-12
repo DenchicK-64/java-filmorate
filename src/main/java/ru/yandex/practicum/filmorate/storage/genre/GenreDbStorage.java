@@ -3,6 +3,7 @@ package ru.yandex.practicum.filmorate.storage.genre;
 import lombok.AllArgsConstructor;
 
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
@@ -12,6 +13,7 @@ import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
@@ -41,12 +43,21 @@ public class GenreDbStorage implements GenreStorage {
 
     @Override
     public void setFilmGenres(int filmId, List<Genre> genres) {
-        for (Genre genre : genres) {
-            try {
-                jdbcTemplate.update(GenreSqlRequestList.SET_FILM_GENRE, filmId, genre.getId());
-            } catch (DataIntegrityViolationException e) {
-                System.out.println("Дублирование жанров не допускается!");
-            }
+
+        try {
+            jdbcTemplate.batchUpdate(GenreSqlRequestList.SET_FILM_GENRE, new BatchPreparedStatementSetter() {
+                @Override
+                public void setValues(PreparedStatement ps, int i) throws SQLException {
+                    ps.setInt(1, filmId);
+                    ps.setInt(2, genres.get(i).getId());
+                }
+                @Override
+                public int getBatchSize() {
+                    return genres.size();
+                }
+            });
+        } catch (DataIntegrityViolationException e) {
+            System.out.println("Дубликаты не допустимы");
         }
     }
 
