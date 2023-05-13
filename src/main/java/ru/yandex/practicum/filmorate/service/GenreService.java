@@ -30,7 +30,9 @@ public class GenreService {
         genreStorage.deleteFilmGenres(filmId);
     }
 
-    public List<Genre> getFilmGenres(int filmId) {return genreStorage.getFilmGenres(filmId);}
+    public List<Genre> getFilmGenres(int filmId) {
+        return genreStorage.getFilmGenres(filmId);
+    }
 
     public Map<Integer, Film> getGenresFromFilms(Map<Integer, Film> films){
         return genreStorage.getGenresFromFilms(films);
