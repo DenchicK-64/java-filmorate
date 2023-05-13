@@ -38,9 +38,10 @@ public class FilmService {
 
     public Film update(Film film) throws ValidationException {
         Film filmUpd = filmStorage.update(film);
-        Map<Integer, Film> filmMap = new HashMap<>();
+        /*Map<Integer, Film> filmMap = new HashMap<>();
         filmMap.put(filmUpd.getId(), film);
-        return genreStorage.getGenresFromFilms(filmMap).get(filmUpd.getId());
+        return genreStorage.getGenresFromFilms(filmMap).get(filmUpd.getId());*/
+        return filmUpd;
     }
 
     public List<Film> findAll() {

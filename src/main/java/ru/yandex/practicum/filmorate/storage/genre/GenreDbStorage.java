@@ -19,9 +19,12 @@ import javax.validation.ConstraintViolationException;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
+
+import static java.util.Comparator.comparingInt;
+import static java.util.stream.Collectors.collectingAndThen;
+import static java.util.stream.Collectors.toCollection;
 
 @Component
 @AllArgsConstructor
@@ -45,22 +48,31 @@ public class GenreDbStorage implements GenreStorage {
     }
 
     @Override
-    public void setFilmGenres(int filmId, List<Genre> genres) throws ConstraintViolationException{
+    public void setFilmGenres(int filmId, List<Genre> genres){
+        /*try {
 
+        genres = genres.stream().distinct()
+                .collect(collectingAndThen(toCollection(() -> new TreeSet<>(comparingInt(Genre::getId))), ArrayList::new));
+
+        genres.forEach(genre -> {
+                    jdbcTemplate.update(GenreSqlRequestList.SET_FILM_GENRE, filmId, genre.getId());
+                });*/
+        /*List<Genre> unique = new ArrayList<>(new HashSet<>(genres));*/
+        List<Genre> unique = genres.stream().distinct().collect(Collectors.toList());
         try {
             jdbcTemplate.batchUpdate(GenreSqlRequestList.SET_FILM_GENRE, new BatchPreparedStatementSetter() {
                 @Override
                 public void setValues(PreparedStatement ps, int i) throws SQLException {
                     ps.setInt(1, filmId);
-                    ps.setInt(2, genres.get(i).getId());
+                    ps.setInt(2, unique.get(i).getId());
                 }
 
                 @Override
                 public int getBatchSize() {
-                    return genres.size();
+                    return unique.size();
                 }
             });
-        } catch (Throwable exception) {
+        } catch (ConstraintViolationException exception) {
             System.out.println("Дубликаты не допустимы");
         }
     }

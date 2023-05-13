@@ -2,15 +2,19 @@ package ru.yandex.practicum.filmorate.storage.film;
 
 import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Repository;
+import org.springframework.web.bind.annotation.ControllerAdvice;
 import ru.yandex.practicum.filmorate.exceptions.FilmNotFoundException;
+import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Mpa;
@@ -18,11 +22,13 @@ import ru.yandex.practicum.filmorate.storage.genre.GenreDbStorage;
 import ru.yandex.practicum.filmorate.storage.genre.GenreSqlRequestList;
 import ru.yandex.practicum.filmorate.storage.genre.GenreStorage;
 
+import java.lang.reflect.InvocationTargetException;
 import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Component("FilmDbStorage")
 @Slf4j
@@ -58,17 +64,16 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public Film update(Film film) {
-        ValidateFilm.validateFilm(film);
-        filmCheckInDb(film.getId());
-        jdbcTemplate.update(FilmSqlRequestList.UPDATE_FILM, film.getName(), film.getDescription(), film.getReleaseDate(),
-                film.getDuration(), film.getMpa().getId(), film.getId());
-       if (film.getGenres() != null) {
-            genreStorage.deleteFilmGenres(film.getId());
-            genreStorage.setFilmGenres(film.getId(), film.getGenres());
-        }
-        int count = getFilmLikes(film.getId()).size();
-        film.setLikesCounter(count);
-        return getFilm(film.getId());
+            filmCheckInDb(film.getId());
+            ValidateFilm.validateFilm(film);
+            jdbcTemplate.update(FilmSqlRequestList.UPDATE_FILM, film.getName(), film.getDescription(), film.getReleaseDate(),
+                    film.getDuration(), film.getMpa().getId(), film.getId());
+                genreStorage.deleteFilmGenres(film.getId());
+                /*List<Genre> unique = film.getGenres().stream().distinct().collect(Collectors.toList());*/
+                genreStorage.setFilmGenres(film.getId(), film.getGenres());
+            int count = getFilmLikes(film.getId()).size();
+            film.setLikesCounter(count);
+        return film;
     }
 
     @Override
@@ -111,6 +116,15 @@ public class FilmDbStorage implements FilmStorage {
             throw new FilmNotFoundException("Фильм не найден в базе данных");
         }
     }
+
+    /*public boolean filmCheckInDb(int filmId) {
+        try {
+            jdbcTemplate.queryForObject(FilmSqlRequestList.FILM_CHECK_IN_DB, Integer.class, filmId);
+            return true;
+        } catch (EmptyResultDataAccessException exception){
+            return false;
+        }
+    }*/
 
     private List<Integer> getFilmLikes(int filmId) {
         return jdbcTemplate.queryForList(FilmSqlRequestList.GET_FILM_LIKES, Integer.class, filmId);

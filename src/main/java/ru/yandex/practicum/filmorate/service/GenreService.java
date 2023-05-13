@@ -10,6 +10,7 @@ import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.storage.genre.GenreDbStorage;
 import ru.yandex.practicum.filmorate.storage.genre.GenreStorage;
 
+import javax.validation.ConstraintViolationException;
 import java.util.List;
 import java.util.Map;
 
@@ -26,7 +27,7 @@ public class GenreService {
         return genreStorage.getGenre(filmId);
     }
 
-    public void setFilmGenres(int filmId, List<Genre> genres) {
+    public void setFilmGenres(int filmId, List<Genre> genres) throws ConstraintViolationException {
         genreStorage.setFilmGenres(filmId, genres);
     }
 

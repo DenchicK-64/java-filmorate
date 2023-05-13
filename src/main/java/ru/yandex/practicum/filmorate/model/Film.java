@@ -24,6 +24,7 @@ public class Film {
     public void setLikesCounter(Integer likesCounter) {
         this.likesCounter = likes.size();
     }
+
     public Film(int id, String name, String description, LocalDate releaseDate, Integer duration, Mpa mpa) {
         this.id = id;
         this.name = name;

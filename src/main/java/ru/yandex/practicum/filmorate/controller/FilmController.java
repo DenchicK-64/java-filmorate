@@ -31,7 +31,7 @@ public class FilmController {
     }
 
     @PutMapping
-    public Film update(@Valid @RequestBody Film film){
+    public Film update(@Valid @RequestBody Film film) {
         log.info("Фильм добавлен: {}", film.getName());
         return filmService.update(film);
     }
@@ -43,24 +43,24 @@ public class FilmController {
     }
 
     @GetMapping("/{id}")
-    public Film getFilmById(@PathVariable Integer id) {
+    public Film getFilmById(@PathVariable Integer id) throws Throwable {
         return filmService.getFilm(id);
     }
 
     @PutMapping("/{filmId}/like/{userId}")
-    public void addLike(@PathVariable Integer filmId, @PathVariable Integer userId) {
+    public void addLike(@PathVariable Integer filmId, @PathVariable Integer userId) throws Throwable {
         log.info("Пользователь ставит лайк фильму");
         filmService.addLike(filmId, userId);
     }
 
     @DeleteMapping("/{filmId}/like/{userId}")
-    public void deleteLike(@PathVariable Integer filmId, @PathVariable Integer userId) {
+    public void deleteLike(@PathVariable Integer filmId, @PathVariable Integer userId) throws Throwable {
         log.info("Пользователь удаляет лайк у фильма");
         filmService.deleteLike(filmId, userId);
     }
 
     @GetMapping("/popular")
-    public List<Film> getFilmsPopular(@RequestParam(defaultValue = "10") Integer count) {
+    public List<Film> getPopularFilms(@RequestParam(defaultValue = "10") Integer count) {
         log.info("Запрос списка популярных фильмов");
         return filmService.getPopularFilms(count);
     }
