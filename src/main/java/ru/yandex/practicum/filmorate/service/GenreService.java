@@ -34,7 +34,7 @@ public class GenreService {
         return genreStorage.getFilmGenres(filmId);
     }
 
-    public Map<Integer, Film> getGenresFromFilms(Map<Integer, Film> films){
+    public Map<Integer, Film> getGenresFromFilms(Map<Integer, Film> films) {
         return genreStorage.getGenresFromFilms(films);
     }
 }
