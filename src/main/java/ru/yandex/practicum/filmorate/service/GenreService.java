@@ -1,16 +1,11 @@
 package ru.yandex.practicum.filmorate.service;
 
-import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
-import ru.yandex.practicum.filmorate.storage.genre.GenreDbStorage;
 import ru.yandex.practicum.filmorate.storage.genre.GenreStorage;
 
-import javax.validation.ConstraintViolationException;
 import java.util.List;
 import java.util.Map;
 
@@ -27,7 +22,7 @@ public class GenreService {
         return genreStorage.getGenre(filmId);
     }
 
-    public void setFilmGenres(int filmId, List<Genre> genres) throws ConstraintViolationException {
+    public void setFilmGenres(int filmId, List<Genre> genres) {
         genreStorage.setFilmGenres(filmId, genres);
     }
 

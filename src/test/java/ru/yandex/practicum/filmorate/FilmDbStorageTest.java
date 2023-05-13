@@ -10,7 +10,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.annotation.DirtiesContext;
 import ru.yandex.practicum.filmorate.exceptions.FilmNotFoundException;
-import ru.yandex.practicum.filmorate.exceptions.UserNotFoundException;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
@@ -44,10 +43,16 @@ public class FilmDbStorageTest {
     @BeforeEach
     public void setUp() {
 
-        testUser = new User(1, "address@somemail.ru", "Some_login", "Some_name", LocalDate.of(2000, 1, 1), new HashSet<>());
-        testUserTwo = new User(2, "anotheraddress@somemail.ru", "Some_login2", "Some_name", LocalDate.of(1990, 1, 1), new HashSet<>());
-        testFilm = new Film(1, "Some name", "Some description", LocalDate.of(2000, 1, 1), 100, new Mpa(1, "G"), new ArrayList<>(), 0);
-        testFilmTwo = new Film(2, "Some name2", "Some description2", LocalDate.of(1990, 1, 1), 90, new Mpa(3, "PG-13"), new ArrayList<>(), 0);
+        testUser = new User(1, "address@somemail.ru", "Some_login", "Some_name",
+                LocalDate.of(2000, 1, 1), new HashSet<>());
+        testUserTwo = new User(2, "anotheraddress@somemail.ru", "Some_login2", "Some_name",
+                LocalDate.of(1990, 1, 1), new HashSet<>());
+        testFilm = new Film(1, "Some name", "Some description",
+                LocalDate.of(2000, 1, 1), 100, new Mpa(1, "G"),
+                new ArrayList<>(), new HashSet<>());
+        testFilmTwo = new Film(2, "Some name2", "Some description2",
+                LocalDate.of(1990, 1, 1), 90, new Mpa(3, "PG-13"),
+                new ArrayList<>(), new HashSet<>());
     }
 
     @Test
@@ -91,11 +96,11 @@ public class FilmDbStorageTest {
         assertEquals(testFilmCopy, testFilm);
     }
 
-      @Test
+    @Test
     public void getFilmTestG() {
-      filmDbStorage.create(testFilm);
-      testFilm.setGenres(List.of(new Genre(1, "Комедия")));
-          assertEquals(testFilm.getGenres(), List.of(new Genre(1, "Комедия")));
+        filmDbStorage.create(testFilm);
+        testFilm.setGenres(List.of(new Genre(1, "Комедия")));
+        assertEquals(testFilm.getGenres(), List.of(new Genre(1, "Комедия")));
     }
 
     @Test
@@ -123,7 +128,7 @@ public class FilmDbStorageTest {
     }
 
     @Test
-    public void getPopularFilmsTest(){
+    public void getPopularFilmsTest() {
         filmDbStorage.create(testFilm);
         filmDbStorage.create(testFilmTwo);
         userDbStorage.create(testUser);
@@ -144,7 +149,9 @@ public class FilmDbStorageTest {
                 new Executable() {
                     @Override
                     public void execute() throws Throwable {
-                        filmDbStorage.create(new Film(1, " ", "Some description", LocalDate.of(2000, 1, 1), 100, new Mpa(1, "G"), new ArrayList<>(), 0));
+                        filmDbStorage.create(new Film(1, " ", "Some description",
+                                LocalDate.of(2000, 1, 1), 100, new Mpa(1, "G"),
+                                new ArrayList<>(), new HashSet<>()));
                     }
                 });
         assertEquals("Название не может быть пустым", exception.getMessage());
@@ -214,7 +221,9 @@ public class FilmDbStorageTest {
                                 "что, чем хуже было бы положение полка, тем приятнее было бы это главнокомандующему." +
                                 " Хотя адъютант и не знал этих подробностей, однако он передал полковому командиру" +
                                 " непременное требование главнокомандующего, чтобы люди были в шинелях и чехлах, и " +
-                                "что в противном случае главнокомандующий будет недоволен.", LocalDate.of(2000, 1, 1), 100, new Mpa(1, "G"), new ArrayList<>(), 0));
+                                "что в противном случае главнокомандующий будет недоволен.",
+                                LocalDate.of(2000, 1, 1), 100,
+                                new Mpa(1, "G"), new ArrayList<>(), new HashSet<>()));
                     }
                 });
         assertEquals("Максимальная длина описания — 200 символов", exception.getMessage());
@@ -227,7 +236,9 @@ public class FilmDbStorageTest {
                 new Executable() {
                     @Override
                     public void execute() throws Throwable {
-                        filmDbStorage.create(new Film(1, "Some name", "Some description", LocalDate.of(1000, 1, 1), 100, new Mpa(1, "G"), new ArrayList<>(), 0));
+                        filmDbStorage.create(new Film(1, "Some name", "Some description",
+                                LocalDate.of(1000, 1, 1), 100, new Mpa(1, "G"),
+                                new ArrayList<>(), new HashSet<>()));
                     }
                 });
         assertEquals("Дата релиза — не раньше 28 декабря 1895 г.", exception.getMessage());
@@ -240,7 +251,9 @@ public class FilmDbStorageTest {
                 new Executable() {
                     @Override
                     public void execute() throws Throwable {
-                        filmDbStorage.create(new Film(1, "Some name", "Some description", LocalDate.of(2000, 1, 1), -100, new Mpa(1, "G"), new ArrayList<>(), 0));
+                        filmDbStorage.create(new Film(1, "Some name", "Some description",
+                                LocalDate.of(2000, 1, 1), -100, new Mpa(1, "G"),
+                                new ArrayList<>(), new HashSet<>()));
                     }
                 });
         assertEquals("Продолжительность фильма должна быть больше 0", exception.getMessage());
@@ -253,23 +266,11 @@ public class FilmDbStorageTest {
                 new Executable() {
                     @Override
                     public void execute() throws Throwable {
-                        filmDbStorage.update(new Film(10, "Some name", "Some description", LocalDate.of(2000, 1, 1), 100, new Mpa(1, "G"), new ArrayList<>(), 0));
+                        filmDbStorage.update(new Film(10, "Some name", "Some description",
+                                LocalDate.of(2000, 1, 1), 100, new Mpa(1, "G"),
+                                new ArrayList<>(), new HashSet<>()));
                     }
                 });
         assertEquals("Фильм не найден в базе данных", exception.getMessage());
     }
-
-   /* @Test
-    void shouldDeleteLikeFromUserWithWrongId() {
-        final UserNotFoundException exception = assertThrows(
-                UserNotFoundException.class,
-                new Executable() {
-                    @Override
-                    public void execute() throws Throwable {
-                        filmDbStorage.create(testFilm);
-                        filmDbStorage.deleteLike(testFilm.getId(), -1);
-                    }
-                });
-        assertEquals("Пользователь не найден в базе данных", exception.getMessage());
-    }*/
 }

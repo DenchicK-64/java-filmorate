@@ -2,9 +2,7 @@ package ru.yandex.practicum.filmorate.storage.genre;
 
 import lombok.AllArgsConstructor;
 
-import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.dao.DuplicateKeyException;
 import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
@@ -15,16 +13,11 @@ import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 
-import javax.validation.ConstraintViolationException;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
 import java.util.stream.Collectors;
-
-import static java.util.Comparator.comparingInt;
-import static java.util.stream.Collectors.collectingAndThen;
-import static java.util.stream.Collectors.toCollection;
 
 @Component
 @AllArgsConstructor
@@ -48,31 +41,24 @@ public class GenreDbStorage implements GenreStorage {
     }
 
     @Override
-    public void setFilmGenres(int filmId, List<Genre> genres){
-        /*try {
-
-        genres = genres.stream().distinct()
-                .collect(collectingAndThen(toCollection(() -> new TreeSet<>(comparingInt(Genre::getId))), ArrayList::new));
-
-        genres.forEach(genre -> {
-                    jdbcTemplate.update(GenreSqlRequestList.SET_FILM_GENRE, filmId, genre.getId());
-                });*/
-        /*List<Genre> unique = new ArrayList<>(new HashSet<>(genres));*/
-        List<Genre> unique = genres.stream().distinct().collect(Collectors.toList());
+    public void setFilmGenres(int filmId, List<Genre> genres) {
         try {
+            List<Genre> unique = genres.stream().distinct().collect(Collectors.toList());
+            genres.clear();
+            genres.addAll(unique);
             jdbcTemplate.batchUpdate(GenreSqlRequestList.SET_FILM_GENRE, new BatchPreparedStatementSetter() {
                 @Override
                 public void setValues(PreparedStatement ps, int i) throws SQLException {
                     ps.setInt(1, filmId);
-                    ps.setInt(2, unique.get(i).getId());
+                    ps.setInt(2, genres.get(i).getId());
                 }
 
                 @Override
                 public int getBatchSize() {
-                    return unique.size();
+                    return genres.size();
                 }
             });
-        } catch (ConstraintViolationException exception) {
+        } catch (DataIntegrityViolationException exception) {
             System.out.println("Дубликаты не допустимы");
         }
     }

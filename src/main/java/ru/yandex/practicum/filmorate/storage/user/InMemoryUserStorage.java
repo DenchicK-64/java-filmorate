@@ -1,12 +1,9 @@
 package ru.yandex.practicum.filmorate.storage.user;
 
-import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exceptions.UserNotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.storage.user.UserStorage;
-import ru.yandex.practicum.filmorate.storage.user.ValidateUser;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -83,7 +80,7 @@ public class InMemoryUserStorage implements UserStorage {
     }
 
     @Override
-    public void userCheckInDb (int userId) {
+    public void userCheckInDb(int userId) {
         if (!users.containsKey(userId)) {
             throw new UserNotFoundException("Пользователь не найден в базе данных");
         }

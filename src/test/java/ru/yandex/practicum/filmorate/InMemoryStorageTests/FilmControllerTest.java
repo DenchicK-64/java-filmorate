@@ -1,4 +1,4 @@
-/*package ru.yandex.practicum.filmorate.InMemoryStorageTests;
+package ru.yandex.practicum.filmorate.InMemoryStorageTests;
 
 import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.BeforeEach;
@@ -192,4 +192,4 @@ public class FilmControllerTest {
                 });
         assertEquals("Фильм не найден в базе данных", exception.getMessage());
     }
-}*/
+}

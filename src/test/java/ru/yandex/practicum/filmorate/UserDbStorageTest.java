@@ -135,7 +135,8 @@ public class UserDbStorageTest {
                                 "Some_name", LocalDate.of(2000, 1, 1), new HashSet<>()));
                     }
                 });
-        assertEquals("Электронная почта не может быть пустой и должна содержать символ @", exception.getMessage());
+        assertEquals("Электронная почта не может быть пустой и должна содержать символ @",
+                exception.getMessage());
     }
 
     @Test

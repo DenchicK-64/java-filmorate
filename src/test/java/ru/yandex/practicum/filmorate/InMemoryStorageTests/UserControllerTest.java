@@ -1,4 +1,4 @@
-/*package ru.yandex.practicum.filmorate.InMemoryStorageTests;
+package ru.yandex.practicum.filmorate.InMemoryStorageTests;
 
 import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.AfterEach;
@@ -125,4 +125,4 @@ public class UserControllerTest {
                 });
         assertEquals("Пользователь не найден в базе данных", exception.getMessage());
     }
-}*/
+}

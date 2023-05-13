@@ -19,11 +19,6 @@ public class Film {
     private List<Genre> genres = new ArrayList<>();
     @JsonIgnore
     private Set<Integer> likes = new HashSet<>();
-    private Integer likesCounter;
-
-    public void setLikesCounter(Integer likesCounter) {
-        this.likesCounter = likes.size();
-    }
 
     public Film(int id, String name, String description, LocalDate releaseDate, Integer duration, Mpa mpa) {
         this.id = id;
@@ -34,7 +29,8 @@ public class Film {
         this.mpa = mpa;
     }
 
-    public Film(int id, String name, String description, LocalDate releaseDate, Integer duration, Mpa mpa, List<Genre> genres, Integer likesCounter) {
+    public Film(int id, String name, String description, LocalDate releaseDate, Integer duration, Mpa mpa,
+                List<Genre> genres) {
         this.id = id;
         this.name = name;
         this.description = description;
@@ -42,8 +38,6 @@ public class Film {
         this.duration = duration;
         this.mpa = mpa;
         this.genres = genres;
-        this.likesCounter = likesCounter;
-
     }
 
     public Film(String name, String description, LocalDate releaseDate, Integer duration, Mpa mpa, List<Genre> genres) {
@@ -55,12 +49,11 @@ public class Film {
         this.genres = genres;
     }
 
-    public Film(String name, String description, LocalDate releaseDate, Integer duration, Mpa mpa, Integer likesCounter) {
+    public Film(String name, String description, LocalDate releaseDate, Integer duration, Mpa mpa) {
         this.name = name;
         this.description = description;
         this.releaseDate = releaseDate;
         this.duration = duration;
         this.mpa = mpa;
-        this.likesCounter = likesCounter;
     }
 }
