@@ -1,8 +1,6 @@
 package ru.yandex.practicum.filmorate.storage.genre;
 
-import lombok.AllArgsConstructor;
-
-import org.springframework.dao.DataIntegrityViolationException;
+import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
@@ -20,7 +18,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @Component
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class GenreDbStorage implements GenreStorage {
     private final JdbcTemplate jdbcTemplate;
 
@@ -42,7 +40,6 @@ public class GenreDbStorage implements GenreStorage {
 
     @Override
     public void setFilmGenres(int filmId, List<Genre> genres) {
-        try {
             List<Genre> unique = genres.stream().distinct().collect(Collectors.toList());
             genres.clear();
             genres.addAll(unique);
@@ -58,9 +55,6 @@ public class GenreDbStorage implements GenreStorage {
                     return genres.size();
                 }
             });
-        } catch (DataIntegrityViolationException exception) {
-            System.out.println("Дубликаты не допустимы");
-        }
     }
 
     @Override
@@ -80,11 +74,7 @@ public class GenreDbStorage implements GenreStorage {
                 "film_genres ON genres.genre_id = film_genres.genre_id WHERE film_genres.film_id IN (:filmsId)";
         namedParameterJdbcTemplate.query(sql, parameters, (rs, rowNum) -> {
             Film film = films.get(rs.getInt("film_id"));
-            return film.getGenres().add(
-                    new Genre(
-                            rs.getInt("genre_id"),
-                            rs.getString("name")
-                    ));
+            return film.getGenres().add(makeGenre(rs));
         });
         return films;
     }
