@@ -2,26 +2,31 @@ package ru.yandex.practicum.filmorate.service;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.storage.FilmStorage;
-import ru.yandex.practicum.filmorate.storage.UserStorage;
+import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
+import ru.yandex.practicum.filmorate.storage.genre.GenreStorage;
+import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Service
 public class FilmService {
     private final FilmStorage filmStorage;
     private final UserStorage userStorage;
+    private final GenreStorage genreStorage;
 
     @Autowired
-    public FilmService(FilmStorage filmStorage, UserStorage userStorage) {
+    public FilmService(@Qualifier("FilmDbStorage") FilmStorage filmStorage,
+                       @Autowired(required = false) @Qualifier("UserDbStorage") UserStorage userStorage,
+                       GenreStorage genreStorage) {
         this.filmStorage = filmStorage;
         this.userStorage = userStorage;
+        this.genreStorage = genreStorage;
     }
 
     public Film create(Film film) throws ValidationException {
@@ -32,33 +37,42 @@ public class FilmService {
         return filmStorage.update(film);
     }
 
-    public Collection<Film> findAll() {
+    public List<Film> findAll() {
         log.info("Получение всех фильмов");
-        return filmStorage.findAll();
+        List<Film> films = filmStorage.findAll();
+        Map<Integer, Film> filmMap = new HashMap<>();
+        for (Film film : films) {
+            filmMap.put(film.getId(), film);
+        }
+        return new ArrayList<>(genreStorage.getGenresFromFilms(filmMap).values());
     }
 
     public Film getFilm(int id) {
-        return filmStorage.getFilm(id);
+        Film film = filmStorage.getFilm(id);
+        Map<Integer, Film> filmMap = new HashMap<>();
+        filmMap.put(film.getId(), film);
+        return genreStorage.getGenresFromFilms(filmMap).get(film.getId());
     }
 
-    public void addLike(Integer filmId, Integer userId) {
-        Film film = filmStorage.getFilm(filmId);
+    public void addLike(int filmId, int userId) {
+        Film film = getFilm(filmId);
         User user = userStorage.getUser(userId);
-        film.getLikes().add(user.getId());
+        filmStorage.addLike(film.getId(), user.getId());
     }
 
     public void deleteLike(Integer filmId, Integer userId) {
-        Film film = filmStorage.getFilm(filmId);
+        userStorage.userCheckInDb(userId);
+        Film film = getFilm(filmId);
         User user = userStorage.getUser(userId);
-        film.getLikes().remove(user.getId());
+        filmStorage.deleteLike(film.getId(), user.getId());
     }
 
-    public List<Film> getPopularFilms(Integer count) {
-        List<Film> popularFilms = findAll()
-                .stream()
-                .sorted((t1, t2) -> t2.getLikes().size() - t1.getLikes().size())
-                .limit(count)
-                .collect(Collectors.toList());
-        return popularFilms;
+    public List<Film> getPopularFilms(int count) {
+        List<Film> films = filmStorage.getPopularFilms(count);
+        Map<Integer, Film> filmMap = new HashMap<>();
+        for (Film film : films) {
+            filmMap.put(film.getId(), film);
+        }
+        return new ArrayList<>(genreStorage.getGenresFromFilms(filmMap).values());
     }
 }

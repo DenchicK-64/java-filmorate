@@ -1,21 +1,59 @@
 package ru.yandex.practicum.filmorate.model;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import lombok.*;
 
 import java.time.LocalDate;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 @Data
-@AllArgsConstructor
 @NoArgsConstructor
+@AllArgsConstructor
 public class Film {
     private int id;
     private String name;
     private String description;
     private LocalDate releaseDate;
     private Integer duration;
+    private Mpa mpa;
+    private List<Genre> genres = new ArrayList<>();
+    @JsonIgnore
     private Set<Integer> likes = new HashSet<>();
+
+    public Film(int id, String name, String description, LocalDate releaseDate, Integer duration, Mpa mpa) {
+        this.id = id;
+        this.name = name;
+        this.description = description;
+        this.releaseDate = releaseDate;
+        this.duration = duration;
+        this.mpa = mpa;
+    }
+
+    public Film(int id, String name, String description, LocalDate releaseDate, Integer duration, Mpa mpa,
+                List<Genre> genres) {
+        this.id = id;
+        this.name = name;
+        this.description = description;
+        this.releaseDate = releaseDate;
+        this.duration = duration;
+        this.mpa = mpa;
+        this.genres = genres;
+    }
+
+    public Film(String name, String description, LocalDate releaseDate, Integer duration, Mpa mpa, List<Genre> genres) {
+        this.name = name;
+        this.description = description;
+        this.releaseDate = releaseDate;
+        this.duration = duration;
+        this.mpa = mpa;
+        this.genres = genres;
+    }
+
+    public Film(String name, String description, LocalDate releaseDate, Integer duration, Mpa mpa) {
+        this.name = name;
+        this.description = description;
+        this.releaseDate = releaseDate;
+        this.duration = duration;
+        this.mpa = mpa;
+    }
 }

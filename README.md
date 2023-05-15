@@ -3,7 +3,7 @@ Template repository for Filmorate project.
 
 **Диаграмма базы данных**
 
-<img alt="”drawSQL-filmorate-export-2023-04-20”" src="src\main\resources\drawSQL-filmorate-export-2023-04-20.png" width ="””" height="””">
+![](https://github.com/DenchicK-64/java-filmorate/blob/add-database/drawSQL-filmorate-export-2023-04-21.png)
 
 **Примеры запросов**
 

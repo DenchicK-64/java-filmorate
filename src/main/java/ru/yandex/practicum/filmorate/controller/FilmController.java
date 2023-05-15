@@ -3,11 +3,10 @@ package ru.yandex.practicum.filmorate.controller;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
 
-import java.util.Collection;
+import javax.validation.Valid;
 import java.util.List;
 
 @Slf4j
@@ -18,19 +17,19 @@ public class FilmController {
     private final FilmService filmService;
 
     @PostMapping
-    public Film create(@RequestBody Film film) throws ValidationException {
+    public Film create(@RequestBody Film film) {
         log.info("Фильм добавлен: {}", film.getName());
         return filmService.create(film);
     }
 
     @PutMapping
-    public Film update(@RequestBody Film film) throws ValidationException {
+    public Film update(@Valid @RequestBody Film film) {
         log.info("Фильм добавлен: {}", film.getName());
         return filmService.update(film);
     }
 
     @GetMapping
-    public Collection<Film> findAll() {
+    public List<Film> findAll() {
         log.info("Получение всех фильмов");
         return filmService.findAll();
     }
@@ -53,7 +52,7 @@ public class FilmController {
     }
 
     @GetMapping("/popular")
-    public List<Film> getFilmsPopular(@RequestParam(defaultValue = "10") Integer count) {
+    public List<Film> getPopularFilms(@RequestParam(defaultValue = "10") Integer count) {
         log.info("Запрос списка популярных фильмов");
         return filmService.getPopularFilms(count);
     }
